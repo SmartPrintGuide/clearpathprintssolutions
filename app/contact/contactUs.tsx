@@ -1,11 +1,58 @@
+'use client';
+
+import { useState } from 'react';
 import {
     MapPin,
-    Phone,
     Mail,
     Clock,
-} from "lucide-react";
+} from 'lucide-react';
 
 function ContactUs() {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [printerModel, setPrinterModel] = useState('');
+    const [details, setDetails] = useState('');
+    const [status, setStatus] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setIsLoading(true);
+        setStatus('');
+
+        try {
+            const response = await fetch('/api/email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'contact',
+                    name,
+                    email,
+                    phone,
+                    printerModel,
+                    details,
+                }),
+            });
+
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result?.error || 'Unable to send contact request.');
+            }
+
+            setStatus('Your message has been sent successfully. We will contact you soon.');
+            setName('');
+            setEmail('');
+            setPhone('');
+            setPrinterModel('');
+            setDetails('');
+        } catch (error) {
+            setStatus(error instanceof Error ? error.message : 'Failed to send contact request.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <section className="bg-slate-50 section-space">
             <div className="section-shell grid gap-12 lg:grid-cols-2">
@@ -93,7 +140,7 @@ function ContactUs() {
                         </p>
                     </div>
 
-                    <form className="space-y-6">
+                    <form className="space-y-6" onSubmit={handleSubmit}>
                         {/* Full Name */}
                         <div>
                             <label className="text-label mb-2 block text-slate-700">
@@ -101,9 +148,12 @@ function ContactUs() {
                             </label>
 
                             <input
+                                value={name}
+                                onChange={(event) => setName(event.target.value)}
                                 type="text"
                                 placeholder="John Smith"
                                 className="text-input h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-5 text-slate-900 placeholder:text-slate-400 focus:border-[#044dd9] focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                required
                             />
                         </div>
 
@@ -115,9 +165,12 @@ function ContactUs() {
                                 </label>
 
                                 <input
+                                    value={email}
+                                    onChange={(event) => setEmail(event.target.value)}
                                     type="email"
                                     placeholder="john@example.com"
                                     className="text-input h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-5 text-slate-900 placeholder:text-slate-400 focus:border-[#044dd9] focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                    required
                                 />
                             </div>
 
@@ -127,9 +180,12 @@ function ContactUs() {
                                 </label>
 
                                 <input
+                                    value={phone}
+                                    onChange={(event) => setPhone(event.target.value)}
                                     type="tel"
                                     placeholder="+1 (555) 123-4567"
                                     className="text-input h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-5 text-slate-900 placeholder:text-slate-400 focus:border-[#044dd9] focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                    required
                                 />
                             </div>
                         </div>
@@ -141,9 +197,12 @@ function ContactUs() {
                             </label>
 
                             <input
+                                value={printerModel}
+                                onChange={(event) => setPrinterModel(event.target.value)}
                                 type="text"
                                 placeholder="HP LaserJet Pro M404dn"
                                 className="text-input h-12 w-full rounded-2xl border border-slate-300 bg-slate-50 px-5 text-slate-900 placeholder:text-slate-400 focus:border-[#044dd9] focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                required
                             />
                         </div>
 
@@ -154,17 +213,23 @@ function ContactUs() {
                             </label>
 
                             <textarea
+                                value={details}
+                                onChange={(event) => setDetails(event.target.value)}
                                 rows={6}
                                 placeholder="Tell us what service you need or describe your printer issue..."
                                 className="text-input w-full rounded-2xl border border-slate-300 bg-slate-50 px-5 py-4 text-slate-900 placeholder:text-slate-400 focus:border-[#044dd9] focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-100"
+                                required
                             />
                         </div>
+
+                        {status ? <p className="text-sm text-slate-700">{status}</p> : null}
 
                         <button
                             type="submit"
                             className="btn-primary w-full py-4 cursor-pointer"
+                            disabled={isLoading}
                         >
-                            Book Service
+                            {isLoading ? 'Sending...' : 'Send Message'}
                         </button>
                     </form>
                 </div>

@@ -1,7 +1,54 @@
-import React from "react";
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
 
 function AppointmentForm() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [printerModel, setPrinterModel] = useState('');
+  const [message, setMessage] = useState('');
+  const [status, setStatus] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setStatus('');
+
+    try {
+      const response = await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'appointment',
+          name,
+          email,
+          phone,
+          printerModel,
+          message,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || 'Unable to send appointment request.');
+      }
+
+      setStatus('Your appointment request has been sent successfully.');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setPrinterModel('');
+      setMessage('');
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Failed to send appointment request.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section
       id="appointmentForm"
@@ -20,15 +67,18 @@ function AppointmentForm() {
               Fill out the form and our support team will contact you shortly.
             </p>
 
-            <form className="mt-8 space-y-5">
+            <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Full Name
                 </label>
                 <input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
                   type="text"
                   placeholder="Enter your full name"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  required
                 />
               </div>
 
@@ -37,9 +87,12 @@ function AppointmentForm() {
                   Email Address
                 </label>
                 <input
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   type="email"
                   placeholder="Enter your email"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  required
                 />
               </div>
 
@@ -48,9 +101,12 @@ function AppointmentForm() {
                   Phone Number
                 </label>
                 <input
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
                   type="tel"
                   placeholder="Enter your phone number"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  required
                 />
               </div>
 
@@ -59,17 +115,36 @@ function AppointmentForm() {
                   Printer Model Number
                 </label>
                 <input
+                  value={printerModel}
+                  onChange={(event) => setPrinterModel(event.target.value)}
                   type="text"
                   placeholder="e.g. HP LaserJet Pro M404dn"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Message
+                </label>
+                <textarea
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  rows={4}
+                  placeholder="Tell us more about your printer issue or service request..."
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
 
+              {status ? <p className="text-sm text-slate-700">{status}</p> : null}
+
               <button
                 type="submit"
                 className="btn-primary w-full cursor-pointer"
+                disabled={isLoading}
               >
-                Submit Appointment
+                {isLoading ? 'Sending...' : 'Send Appointment Request'}
               </button>
             </form>
           </div>
