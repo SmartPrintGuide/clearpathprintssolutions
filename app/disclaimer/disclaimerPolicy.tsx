@@ -83,13 +83,9 @@ function DisclaimerPolicy() {
                 </p>
 
                 <p>
-                  Your use of this website and reliance on any
-                  information provided is entirely at your own risk. To
-                  the fullest extent permitted by law, ********** shall
-                  not be responsible for any direct, indirect,
-                  incidental, or consequential damages resulting from the
-                  use of this website or its content.
+                  Your use of this website and any information provided on it is entirely at your own risk. To the fullest extent permitted by applicable law, we disclaim all liability for any direct, indirect, incidental, consequential, or special damages arising from or related to your use of this website, its content, or any reliance placed on the information provided.
                 </p>
+
               </div>
             </section>
 
