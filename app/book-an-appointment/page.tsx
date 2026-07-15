@@ -17,8 +17,9 @@ function page() {
    <Hero />
    
    <AppointmentForm />
+      <CustomerSupport />
     <StayInformed />
-   <CustomerSupport />
+
 
   
    </>
